@@ -28,14 +28,6 @@ def toitem():
         data = StationDetails.getDetails(stn,wban)
         return  json.dumps(data, ensure_ascii=False)
 
-@app.route('/chart2',methods=['POST','GET'])
-def chart2():
-    if request.method=='POST':
-        # 获取stn  和 wban
-        stn = request.form.get('stn')
-        wban = request.form.get('wban')
-        data = StationDetails.getChart2(stn,wban)
-        return  json.dumps(data, ensure_ascii=False)
 
 if __name__ == '__main__':
     app.run()
