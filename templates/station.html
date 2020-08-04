@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script type="text/javascript" src="../static/js/echarts.js"></script>
+<script type="text/javascript" src="../static/js/jquery-3.2.1.min.js"></script>
+
+window.onload = function() {
+                             var chart_67f22a3af33b4dae84b1c150418596ff = echarts.init(
+                                                                document.getElementById('67f22a3af33b4dae84b1c150418596ff'), 'white', {renderer: 'canvas'});
+
+                            $.ajax({
+                                url: 'http://127.0.0.1:5000/keshihua',
+
+                                dataType: 'json',
+                                method: 'POST',
+                                success: function (res) {
+                                    console.log(res)
+
+
+                               var option_67f22a3af33b4dae84b1c150418596ff = {
+                                    title: {
+                                        text: '考研人数情况（万人）'
+                                    },
+                                    tooltip: {
+                                        trigger: 'axis'
+                                    },
+                                    legend: {
+                                        textStyle: {
+
+                                                          fontSize : 20
+                                                        },
+                                        data: ['招生人数', '在校人数', '毕业人数']
+                                    },
+                                    grid: {
+                                        left: '3%',
+                                        right: '4%',
+                                        bottom: '3%',
+                                        containLabel: true
+                                    },
+                                    toolbox: {
+                                        feature: {
+                                            saveAsImage: {}
+                                        }
+                                    },
+                                    xAxis: {
+                                        type: 'category',
+                                        boundaryGap: false,
+                                        axisLabel: {
+                                                       show: true,
+                                                        textStyle: {
+
+                                                          fontSize : 15      //更改坐标轴文字大小
+                                                        }
+                                                     },
+
+                                        data: res[0] },
+                                    yAxis: {
+                                        type: 'value',
+                                        axisLabel: {
+                                                       show: true,
+                                                        textStyle: {
+
+                                                          fontSize : 15      //更改坐标轴文字大小
+                                                        }
+                                                     },
+                                    },
+                                    series: [
+                                        {
+                                            name: '招生人数',
+                                            type: 'line',
+                                            stack: '总量',
+                                            data: res[1]    },
+                                        {
+                                            name: '在校人数',
+                                            type: 'line',
+                                            stack: '总量',
+                                            data:res[2]   },
+                                        {
+                                            name: '毕业人数',
+                                            type: 'line',
+                                            stack: '总量',
+                                            data:res[3]
+                                        },
+
+                                    ]
+                                };
+                                chart_67f22a3af33b4dae84b1c150418596ff.setOption(option_67f22a3af33b4dae84b1c150418596ff);
+
+                                                        }
+                                                    })
+                                                }
+
+</head>
+<body>
+	<div id="main" style="width: 1200px; height: 600px"></div>
+	<script type="text/javascript">
+		//初始化echarts内置对象
+		var myEchart = echarts.init(document.getElementById('main'));
+		//定义China.js文件的路径
+		var mapInfoUrl = "../static/data/world.json";
+		//定义访问后台的路径
+		var stationInfoUrl = "index";
+		//定义站点数据变量
+		var myData = [];
+		//通过jQuery的get方法获取world.json数据
+		$.get(mapInfoUrl, function(data){
+			//注册地图
+			echarts.registerMap('world', data);
+			//指定配置项
+			var option = {
+					//添加提示框组件
+					tooltip:{
+						trigger : 'item',
+						formatter : '{b}'
+					},
+				//添加geo组件
+				geo:[{
+					name:'世界地图',
+					type:'map',
+					map:'world',
+					roam:'false',
+					selectMode:'false',
+					//图像上的文本标签
+					label:{
+						show:false,
+						normal:{	//普通状态下
+							show:false	//不显示文本标签
+						},
+						emphasis:{	//高亮状态下
+							label:{
+								show:false	//显示文本标签
+							}
+						}
+					},
+					//定义样式
+					itemStyle:{
+						//普通状态下的样式
+						normal:{
+							areaColor:'#323c48',	//面积颜色
+							borderColor:'#111'		//边框颜色
+						},
+						//高亮状态下的样式
+						emphasis:{
+							areaColor:'#323c48'		//面积颜色
+						}
+					}
+				}],
+				//设置图表背景色
+				//backgroundColor:'#404a59',
+				series:[{
+					name:'站点',
+					type:'scatter',
+					coordinateSystem:'geo',
+					data:myData
+				}]
+			};
+			//利用指定的配置项显示图标
+			myEchart.setOption(option);
+
+			//添加点击事件
+			myEchart.on('click', function(params){
+				//获取点击的参数名称，然后按照“-”切分得到一个数组
+				var str = params.name.split("-");
+				//如何说数组的长度大于等于2，表名点击的是站点
+                console.log(str[0]+"&wban="+str[1])
+                var str = params.name.split("-");
+                                //如何说数组的长度大于等于2，表名点击的是站点
+                if(str.length >= 2){
+                    $.ajax({
+                    url: 'http://127.0.0.1:5000/toitem',
+
+                    dataType: 'json',
+                    method: 'POST',
+                    data:{
+                        stn:str[0],
+                        wban:str[1]
+                    },
+
+                    success: function (res) {
+                        console.log(res)
+                    }
+
+
+
+			});
+                }else{//如果数组的长度小于2，表名点击的不是站点
+                    alert("点击的不是站点！请重新点击！")
+                }
+
+
+
+			});
+
+			//发送ajax请求，请求后台返回所有站点的数据
+			$.get(stationInfoUrl, function(data) {
+				//将json字符串转换为JSON对象格式
+
+				data = JSON.parse(data);
+                console.log(data)
+				//alert(data);
+				//显示图表
+				 myEchart.setOption(option = {
+					series : [ {
+						name : '站点',
+						type : 'scatter',
+						symbolSize : '3',
+						coordinateSystem : 'geo',
+						data : data
+					} ]
+				});
+			});
+		});
+
+	</script>
+
+    <script src="../static/js/jquery-3.2.1.min.js"></script>
+</body>
+</html>

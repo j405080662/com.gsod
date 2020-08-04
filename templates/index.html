@@ -1,0 +1,463 @@
+﻿<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>index</title>
+<script type="text/javascript" src="../static/js/jquery.js"></script>
+<link rel="stylesheet" href="../static/css/comon0.css">
+</head>
+	<script>
+	$(window).load(function(){  
+             $(".loading").fadeOut()
+            })  
+			
+/****/
+$(document).ready(function(){
+	var whei=$(window).width()
+	$("html").css({fontSize:whei/20})
+	$(window).resize(function(){
+		var whei=$(window).width()
+	 $("html").css({fontSize:whei/20})
+});
+	});
+	</script>
+	<script type="text/javascript" src="../static/js/echarts.min.js"></script>
+	<script language="JavaScript" src="../static/js/js.js"></script>
+<body>
+<div class="canvas" style="opacity: .2">
+	<iframe frameborder="0" src="../static/js/index.html" style="width: 100%; height: 100%"></iframe>
+	</div>
+<div class="loading">
+  <div class="loadbox"> <img src="../static/picture/loading.gif"> 页面加载中... </div>
+</div>
+<div class="head">
+  <h1>气象数据</h1>
+  <div class="weather"><!--<img src="picture/weather.png"><span>多云转小雨</span>--><span id="showTime"></span></div>
+	
+	<script>
+var t = null;
+    t = setTimeout(time,1000);//開始运行
+    function time()
+    {
+       clearTimeout(t);//清除定时器
+       dt = new Date();
+		var y=dt.getFullYear();
+		var mt=dt.getMonth()+1;
+		var day=dt.getDate();
+       var h=dt.getHours();//获取时
+       var m=dt.getMinutes();//获取分
+       var s=dt.getSeconds();//获取秒
+       document.getElementById("showTime").innerHTML = y+"年"+mt+"月"+day+"-"+h+"时"+m+"分"+s+"秒";
+       t = setTimeout(time,1000); //设定定时器，循环运行     
+    } 
+
+</script>
+	
+	
+</div>
+<div class="mainbox">
+  <ul class="clearfix">
+    <li>
+      <div class="boxall" style="height: 6.2rem;width: 6.2rem">
+        <div class="alltitle">站点风速</div>
+        <div class="allnav" id="container"></div>
+{#          <div id="container" class="chart-container" style="width:1500px; height:800px;"></div>#}
+
+        <div class="boxfoot"></div>
+      </div>
+      <div class="boxall" style="height: 6.2rem;width: 6.2rem">
+        <div class="alltitle">温度和露点</div>
+        <div class="allnav" id="67f22a3af33b4dae84b1c150418596ff"></div>
+        <div class="boxfoot"></div>
+      </div>
+
+    </li>
+    <li>
+        <div class="map4" id="main" style="width: 1400px; height: 900px;padding-left: 420px"></div>
+          <script type="text/javascript">
+		//初始化echarts内置对象
+		var myEchart = echarts.init(document.getElementById('main'));
+		//定义China.js文件的路径
+		var mapInfoUrl = "../static/data/world.json";
+		//定义访问后台的路径
+		var stationInfoUrl = "index";
+		//定义站点数据变量
+		var myData = [];
+		//通过jQuery的get方法获取world.json数据
+		$.get(mapInfoUrl, function(data){
+			//注册地图
+			echarts.registerMap('world', data);
+			//指定配置项
+			var option = {
+					//添加提示框组件
+					tooltip:{
+						trigger : 'item',
+						formatter : '{b}'
+					},
+				//添加geo组件
+				geo:[{
+					name:'世界地图',
+					type:'map',
+					map:'world',
+					roam:'false',
+					selectMode:'false',
+					//图像上的文本标签
+					label:{
+						show:false,
+						normal:{	//普通状态下
+							show:false	//不显示文本标签
+						},
+						emphasis:{	//高亮状态下
+							label:{
+								show:false	//显示文本标签
+							}
+						}
+					},
+					//定义样式
+					itemStyle:{
+						//普通状态下的样式
+						normal:{
+							areaColor:'#323c48',	//面积颜色
+							borderColor:'#111'		//边框颜色
+						},
+						//高亮状态下的样式
+						emphasis:{
+							areaColor:'#323c48'		//面积颜色
+						}
+					}
+				}],
+				//设置图表背景色
+				//backgroundColor:'#404a59',
+				series:[{
+					name:'站点',
+					type:'scatter',
+					coordinateSystem:'geo',
+					data:myData
+				}]
+			};
+			//利用指定的配置项显示图标
+			myEchart.setOption(option);
+
+			//添加点击事件
+			myEchart.on('click', function(params){
+				//获取点击的参数名称，然后按照“-”切分得到一个数组
+				var str = params.name.split("-");
+				//如何说数组的长度大于等于2，表名点击的是站点
+                console.log(str[0]+"&wban="+str[1])
+                var str = params.name.split("-");
+                                //如何说数组的长度大于等于2，表名点击的是站点
+                if(str.length >= 2){
+
+
+                    $.ajax({
+                    url: 'http://127.0.0.1:5000/toitem',
+
+                    dataType: 'json',
+                    method: 'POST',
+                    data:{
+                        stn:str[0],
+                        wban:str[1]
+                    },
+
+                    success: function (res) {
+                         $.ajax({
+                        url: 'http://127.0.0.1:5000/chart2',
+                        dataType: 'json',
+                        method: 'POST',
+                         data:{
+                            stn:str[0],
+                            wban:str[1]
+                        },
+                        success: function (res) {
+                            console.log(res)
+
+                        var chart_67f22a3af33b4dae84b1c150418596ff = echarts.init(
+                        document.getElementById('67f22a3af33b4dae84b1c150418596ff'), 'white', {renderer: 'canvas'});
+
+                        var option_67f22a3af33b4dae84b1c150418596ff = {
+
+                            tooltip: {
+                                trigger: 'axis'
+                            },
+                            legend: {
+                                textStyle: {
+
+                                    fontSize : 10
+                                },
+                                data: ['平均露点', '平均温度']
+                                    },
+                            grid: {
+                                left: '3%',
+                                right: '4%',
+                                bottom: '3%',
+                                containLabel: true
+                            },
+                            toolbox: {
+                                feature: {
+                                    saveAsImage: {}
+                                }
+                            },
+                            xAxis: {
+                                type: 'category',
+                                boundaryGap: false,
+                                axisLabel: {
+                                    show: true,
+                                    textStyle: {
+
+                                        fontSize : 10      //更改坐标轴文字大小
+                                    }
+                                },
+
+                                data: ['第一季度', '第二季度', '第三季度', '第四季度']
+                            },
+                            yAxis: {
+                                type: 'value',
+                                axisLabel: {
+                                    show: true,
+                                    textStyle: {
+
+                                        fontSize : 10      //更改坐标轴文字大小
+                                    }
+                                },
+                            },
+                            series: [
+                                {
+                                    name: '平均温度',
+                                    type: 'line',
+                                    stack: '总量',
+                                    data: res[0]    },
+                                {
+                                    name: '平均露点',
+                                    type: 'line',
+                                    stack: '总量',
+                                    data:res[1]
+                                },
+
+
+                            ]
+                        };
+                        chart_67f22a3af33b4dae84b1c150418596ff.setOption(option_67f22a3af33b4dae84b1c150418596ff);
+
+
+
+
+                        }
+                    })
+
+                        console.log(res)
+                        var dom = document.getElementById("container");
+                        var myChart = echarts.init(dom);
+                        la = ['第一季度', '第二季度', '第三季度', '第四季度']
+
+
+                        var app = {};
+                        option = null;
+                        var posList = [
+                            'left', 'right', 'top', 'bottom',
+                            'inside',
+                            'insideTop', 'insideLeft', 'insideRight', 'insideBottom',
+                            'insideTopLeft', 'insideTopRight', 'insideBottomLeft', 'insideBottomRight'
+                        ];
+
+                        app.configParameters = {
+                            rotate: {
+                                min: -90,
+                                max: 90
+                            },
+                            align: {
+                                options: {
+                                    left: 'left',
+                                    center: 'center',
+                                    right: 'right'
+                                }
+                            },
+                            verticalAlign: {
+                                options: {
+                                    top: 'top',
+                                    middle: 'middle',
+                                    bottom: 'bottom'
+                                }
+                            },
+                            position: {
+                                options: echarts.util.reduce(posList, function (map, pos) {
+                                    map[pos] = pos;
+                                    return map;
+                                }, {})
+                            },
+                            distance: {
+                                min: 0,
+                                max: 100
+                            }
+                        };
+
+                        app.config = {
+                            rotate: 90,
+                            align: 'left',
+                            verticalAlign: 'middle',
+                            position: 'insideBottom',
+                            distance: 15,
+                            onChange: function () {
+                                var labelOption = {
+                                    normal: {
+                                        rotate: app.config.rotate,
+                                        align: app.config.align,
+                                        verticalAlign: app.config.verticalAlign,
+                                        position: app.config.position,
+                                        distance: app.config.distance
+                                    }
+                                };
+                                myChart.setOption({
+                                    series: [{
+                                        label: labelOption
+                                    }, {
+                                        label: labelOption
+                                    }, {
+                                        label: labelOption
+                                    }, {
+                                        label: labelOption
+                                    }]
+                                });
+                            }
+                        };
+
+
+                        var labelOption = {
+                            show: true,
+                            position: app.config.position,
+                            distance: app.config.distance,
+                            align: app.config.align,
+                            verticalAlign: app.config.verticalAlign,
+                            rotate: app.config.rotate,
+                            formatter: '{c}  {name|{a}}',
+                            fontSize: 16,
+                            rich: {
+                                name: {
+                                    textBorderColor: '#fff'
+                                }
+                            }
+                        };
+
+                        option = {
+                            color: ['#0000FF', '#A52A2A'],
+                            tooltip: {
+                                trigger: 'axis',
+                                axisPointer: {
+                                    type: 'shadow'
+                                }
+                            },
+                            legend: {
+                                data: ['平均风速', '最大风速', '瞬间风速'],
+                                textStyle: {
+                                    fontSize: 10
+                                },
+                            },
+                            toolbox: {
+                                itemSize: 25,
+                                show: true,
+                                orient: 'vertical',
+                                left: 'right',
+                                top: 'center',
+                                feature: {
+                                    mark: {show: true},
+                                    dataView: {show: true, readOnly: false},
+                                    magicType: {show: true, type: ['line', 'bar', 'stack', 'tiled']},
+                                    restore: {show: true},
+                                    saveAsImage: {show: true}
+                                }
+                            },
+                            xAxis: [
+                                {
+                                    type: 'category',
+                                    axisTick: {show: false},
+                                    data: la,
+                                    axisLabel: {
+                                        show: true,
+                                        textStyle: {
+
+                                            fontSize: 10      //更改坐标轴文字大小
+                                        }
+                                    },
+                                }
+                            ],
+                            yAxis: [
+                                {
+                                    type: 'value',
+                                    axisLabel: {
+                                        show: true,
+                                        textStyle: {
+
+                                            fontSize: 15      //更改坐标轴文字大小
+                                        }
+                                    },
+                                }
+                            ],
+                            series: [
+                                {
+                                    name: '平均风速',
+                                    type: 'bar',
+                                    barGap: 0,
+
+                                    data: res[0]
+                                },
+                                {
+                                    name: '最大风速',
+                                    type: 'bar',
+
+                                    data: res[1]
+                                },
+
+                                {
+                                    name: '瞬间风速',
+                                    type: 'bar',
+
+                                    data: res[2]
+                                },
+
+                            ]
+                        };
+                        ;
+                        if (option && typeof option === "object") {
+                            myChart.setOption(option, true);
+                        }
+
+                    }
+			});
+                }else{//如果数组的长度小于2，表名点击的不是站点
+                    alert("点击的不是站点！请重新点击！")
+                }
+			});
+
+			//发送ajax请求，请求后台返回所有站点的数据
+			$.get(stationInfoUrl, function(data) {
+				//将json字符串转换为JSON对象格式
+
+				data = JSON.parse(data);
+                console.log(data)
+				//alert(data);
+				//显示图表
+				 myEchart.setOption(option = {
+					series : [ {
+						name : '站点',
+						type : 'scatter',
+						symbolSize : '3',
+						coordinateSystem : 'geo',
+						data : data
+					} ]
+				});
+			});
+		});
+
+
+
+	</script>
+    </li>
+
+  </ul>
+</div>
+
+
+
+<script type="text/javascript" src="../static/js/china.js"></script>
+<script type="text/javascript" src="../static/js/area_echarts.js"></script>
+</body>
+</html>
